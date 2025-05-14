@@ -56,21 +56,34 @@ CREATE TABLE IF NOT EXISTS `clientes` (
     ON UPDATE NO ACTION
 ) ENGINE=InnoDB;
 
--- -----------------------------------------------------
--- Table `produto`
--- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `fornecedores` (
+  `id_fornecedor` INT NOT NULL,
+  `nome` VARCHAR(100) NOT NULL,
+  `cnpj` VARCHAR(18) NOT NULL,
+  `telefone` VARCHAR(45) NOT NULL,
+  `email` VARCHAR(100) NOT NULL,
+  `endereco` VARCHAR(100) NOT NULL,
+  PRIMARY KEY (`id_fornecedor`)
+) ENGINE=InnoDB;
+
 CREATE TABLE IF NOT EXISTS `produto` (
   `id_produto` INT NOT NULL,
   `nome` VARCHAR(45) NOT NULL,
   `descricao` VARCHAR(100) NOT NULL,
   `preco` FLOAT NOT NULL,
   `categoria` VARCHAR(45) NOT NULL,
-  `fornecedor` VARCHAR(45) NOT NULL,
+  `id_fornecedor` INT NOT NULL,
   `estoque` VARCHAR(45) NOT NULL,
   `data_fabricacao` DATE NULL,
   `data_validade` DATE NULL,
   `marca` VARCHAR(45) NULL,
-  PRIMARY KEY (`id_produto`)
+  PRIMARY KEY (`id_produto`),
+  INDEX `fk_produto_fornecedor_idx` (`id_fornecedor`),
+  CONSTRAINT `fk_produto_fornecedor`
+    FOREIGN KEY (`id_fornecedor`)
+    REFERENCES `fornecedores` (`id_fornecedor`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
 ) ENGINE=InnoDB;
 
 -- -----------------------------------------------------
@@ -116,7 +129,37 @@ CREATE TABLE IF NOT EXISTS `itens_venda` (
     ON UPDATE NO ACTION
 ) ENGINE=InnoDB;
 
--- Reset SQL modes
+INSERT INTO usuarios (id_usuarios, nome, email, telefone, login, senha) VALUES
+(1, 'Administrador', 'adm@floricultura.com', '11999999999', 'admin', 'admin123'),
+(2, 'Funcionário João', 'joao@floricultura.com', '11988887777', 'joao', 'senha123');
+
+INSERT INTO endereco (id_endereco, rua, numero, complemento, bairro, cidade, UF) VALUES
+(1, 'Rua das Rosas', '123', 'Apto 12', 'Jardim das Flores', 'São Paulo', 'SP'),
+(2, 'Av. das Acácias', '456', NULL, 'Centro', 'Campinas', 'SP');
+
+INSERT INTO clientes (id_clientes, nome, telefone, email, endereco_id_endereco) VALUES
+(1, 'Maria Silva', '11987654321', 'maria.silva@email.com', 1),
+(2, 'Carlos Oliveira', '11912345678', 'carlos.oliveira@email.com', 2);
+
+INSERT INTO fornecedores (id_fornecedor, nome, cnpj, telefone, email, endereco) VALUES
+(1, 'Flores Bela', '12.345.678/0001-90', '1122334455', 'contato@floresbela.com', 'Rua Florença, 100 - São Paulo/SP'),
+(2, 'Orquideas Reais', '98.765.432/0001-10', '11988776655', 'vendas@orquideasreais.com', 'Av. Botânica, 456 - Campinas/SP'),
+(3, 'Cerâmica ArteFlor', '11.111.222/0001-33', '1133445566', 'arteflor@ceramica.com', 'Rua das Artes, 99 - Sorocaba/SP'),
+(4, 'Estação das Flores', '22.222.333/0001-44', '1177886655', 'contato@estacaoflores.com', 'Av. Primavera, 888 - Jundiaí/SP');
+
+INSERT INTO produto (id_produto, nome, descricao, preco, categoria, id_fornecedor, estoque, data_fabricacao, data_validade, marca) VALUES
+(1, 'Buquê de Rosas Vermelhas', 'Buquê com 12 rosas vermelhas', 79.90, 'Flores', 1, '20', '2025-05-01', NULL, 'NatureFlora'),
+(2, 'Orquídea Branca', 'Vaso com orquídea branca', 59.90, 'Flores', 2, '15', '2025-04-20', NULL, 'OrquiLux'),
+(3, 'Vaso Decorativo', 'Vaso de cerâmica decorado', 34.50, 'Acessórios', 3, '50', '2025-03-10', NULL, 'FlorDecor'),
+(4, 'Arranjo Primavera', 'Arranjo com flores da estação', 89.90, 'Arranjos', 4, '10', '2025-05-10', NULL, 'PrimaveraFlor');
+
+INSERT INTO venda (clientes_id_clientes, id_venda, data_venda, total) VALUES
+(1, 1, NOW(), 169.80);
+
+INSERT INTO itens_venda (id_itens_venda, quantidade, preco_unitario, subtotal, venda_clientes_id_clientes, venda_id_venda, produto_id_produto) VALUES
+(1, 1, 79.90, 79.90, 1, 1, 1),
+(2, 1, 89.90, 89.90, 1, 1, 4);
+
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
